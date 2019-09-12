@@ -3,7 +3,7 @@
 //#define _USE_MATH_DEFINES
 //#include <cmath>
 //#include <libwebsockets.h>
-#include "WebServer.h"
+#include "WebServer.h" 
 
 class MyWebServerSession;
 class MyWebServerCommand;
@@ -64,7 +64,7 @@ public:
 		color["a"] = picojson::value((double)255.0);
 		data["color"] = picojson::value(color);
 		picojson::value ret(data);
-		session->sendJSON(ret);
+		session->sendJSON(ret); 
 	}
 };
 

@@ -32,6 +32,26 @@ struct web_server_per_session_data_input {
 	WebServerSessionState* state;
 };
 
+static const struct lws_http_mount mount = {
+	/* .mount_next */		NULL,		/* linked-list "next" */
+	/* .mountpoint */		"/",		/* mountpoint URL */
+	/* .origin */			".", /* serve from dir */
+	/* .def */			"index.html",	/* default filename */
+	/* .protocol */			NULL,
+	/* .cgienv */			NULL,
+	/* .extra_mimetypes */		NULL,
+	/* .interpret */		NULL,
+	/* .cgi_timeout */		0,
+	/* .cache_max_age */		0,
+	/* .auth_mask */		0,
+	/* .cache_reusable */		0,
+	/* .cache_revalidate */		0,
+	/* .cache_intermediaries */	0,
+	/* .origin_protocol */		LWSMPRO_FILE,	/* files in a dir */
+	/* .mountpoint_len */		1,		/* char count */
+	/* .basic_auth_login_file */	NULL, 
+};
+
 int callback_web_server(
 		struct lws *wsi,
 		enum lws_callback_reasons reason, void *user,
@@ -85,6 +105,11 @@ int callback_web_server(
 struct lws_protocols web_server_protocols[] = {
 		/* first protocol must always be HTTP handler */
 		{
+				"http-only",   // name
+				lws_callback_http_dummy, // callback
+				0              // per_session_data_size
+		},
+		{
 				"web_server",   // name
 				callback_web_server, // callback
 				sizeof (struct web_server_per_session_data_input)              // per_session_data_size
@@ -112,6 +137,7 @@ WebServerBase::WebServerBase(int port) {
 	info.ka_time = 0;
 	info.ka_probes = 0;
 	info.ka_interval = 0;
+	info.mounts = &mount;
 	info.user = this;
 
 	context = lws_create_context(&info);
