@@ -1,4 +1,4 @@
-# CellVis
+# C++ Web Server
 
 ## Getting Started
 
