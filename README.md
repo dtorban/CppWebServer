@@ -28,3 +28,5 @@ cd CppWebServer
  ```shell
   ./build/bin/ExampleServer 8081
   ```
+
+ * Then open up example/Example.html in a browser (i.e. Firefox).
