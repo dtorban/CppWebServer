@@ -69,7 +69,7 @@ public:
 };
 
 int main(int argc, char**argv) {
-	std::cout << "Usage: ./bin/CellServer 8081" << std::endl;
+	std::cout << "Usage: ./bin/ExampleServer 8081" << std::endl;
 
 	if (argc > 1) {
 		int port = std::atoi(argv[1]);
