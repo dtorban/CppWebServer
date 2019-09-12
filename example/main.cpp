@@ -5,46 +5,64 @@
 //#include <libwebsockets.h>
 #include "WebServer.h"
 
-class WebServerSession;
-class WebServerCommand;
+class MyWebServerSession;
+class MyWebServerCommand;
 
-struct WebServerSessionState {
-	std::map<std::string, WebServerCommand*> commands;
+struct MyWebServerSessionState {
+	std::map<std::string, MyWebServerCommand*> commands;
 };
 
-class WebServerCommand {
+class MyWebServerCommand {
 public:
-	virtual ~WebServerCommand() {}
-	virtual void execute(WebServerSession* session, picojson::value& command, WebServerSessionState* state) = 0;
+	virtual ~MyWebServerCommand() {}
+	virtual void execute(MyWebServerSession* session, picojson::value& command, MyWebServerSessionState* state) = 0;
 };
 
-class WebServerSession : public JSONSession {
+class MyWebServerSession : public JSONSession {
 public:
-	WebServerSession(WebServerSessionState state) : state(state) {
+	MyWebServerSession(MyWebServerSessionState state) : state(state) {
 	}
-	~WebServerSession() {
+	~MyWebServerSession() {
 	}
 	void receiveJSON(picojson::value& val) {
 		std::string cmd = val.get<picojson::object>()["command"].get<std::string>();
 		std::cout << val.get<picojson::object>()["command"].get<std::string>() << std::endl;
-		std::map<std::string, WebServerCommand*>::iterator it = state.commands.find(cmd);
+		std::map<std::string, MyWebServerCommand*>::iterator it = state.commands.find(cmd);
 		if (it != state.commands.end()) {
 			it->second->execute(this, val, &state);
 		}
 	}
 
 private:
-	WebServerSessionState state;
+	MyWebServerSessionState state;
 };
 
-class TestCommand : public WebServerCommand {
+class TestCommand : public MyWebServerCommand {
 public:
-	void execute(WebServerSession* session, picojson::value& command, WebServerSessionState* state) {
-		//std::cout << "Moved to time: " << command.get<picojson::object>()["time"].get<double>() << std::endl;
-		std::cout << "state->value" << std::endl;
+	void execute(MyWebServerSession* session, picojson::value& command, MyWebServerSessionState* state) {
+		std::cout << "Test Command" << std::endl;
 		picojson::object data;
-		data["val"] = picojson::value("test");
+		data["command"] = picojson::value("None");
+		data["val"] = picojson::value("TestValue");
 		data["cmd"] = picojson::value((double)1.0);
+		picojson::value ret(data);
+		session->sendJSON(ret);
+	}
+};
+
+class MouseMovedCommand : public MyWebServerCommand {
+public:
+	void execute(MyWebServerSession* session, picojson::value& command, MyWebServerSessionState* state) {
+		std::cout << command.get<picojson::object>()["mouseX"] << " " << command.get<picojson::object>()["mouseY"]  << std::endl;
+		picojson::object data;
+		data["command"] = picojson::value("updateElipse");
+		data["size"] = picojson::value(command.get<picojson::object>()["mouseX"].get<double>());
+		picojson::object color;
+		color["r"] = picojson::value((double)255.0);
+		color["g"] = picojson::value((double)255-command.get<picojson::object>()["mouseY"].get<double>()/4);
+		color["b"] = picojson::value((double)command.get<picojson::object>()["mouseY"].get<double>()/4);
+		color["a"] = picojson::value((double)255.0);
+		data["color"] = picojson::value(color);
 		picojson::value ret(data);
 		session->sendJSON(ret);
 	}
@@ -55,9 +73,10 @@ int main(int argc, char**argv) {
 
 	if (argc > 1) {
 		int port = std::atoi(argv[1]);
-		WebServerSessionState state;
+		MyWebServerSessionState state;
 		state.commands["test"] = new TestCommand();
-		WebServerWithState<WebServerSession, WebServerSessionState> server(state,port);
+		state.commands["mouseMoved"] = new MouseMovedCommand();
+		WebServerWithState<MyWebServerSession, MyWebServerSessionState> server(state,port);
 		while (true) {
 			server.service();
 		}
