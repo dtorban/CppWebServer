@@ -32,6 +32,7 @@ public:
 			it->second->execute(this, val, &state);
 		}
 	}
+	void update() {}
 
 private:
 	MyWebServerSessionState state;
@@ -64,7 +65,7 @@ public:
 		color["a"] = picojson::value((double)255.0);
 		data["color"] = picojson::value(color);
 		picojson::value ret(data);
-		session->sendJSON(ret); 
+		session->sendJSON(ret);
 	}
 };
 

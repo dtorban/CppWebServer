@@ -16,6 +16,7 @@ public:
 		virtual ~Session();
 		virtual void receiveMessage(const std::string& msg) {}
 		void sendMessage(const std::string& msg);
+		virtual void update() {}
 	private:
 		void* state;
 	};

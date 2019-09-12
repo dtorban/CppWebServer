@@ -172,6 +172,10 @@ void WebServerBase::service(int time) {
 			sessions[f]->receiveMessage(sessionState->inMessages[i]);
 		}
 
+		for (int i = 0; i < sessionState->inMessages.size(); i++) {
+			sessions[f]->update();
+		}
+
 		sessionState->inMessages.clear();
 	}
 }
