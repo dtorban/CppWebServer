@@ -1,3 +1,7 @@
+/**
+Copyright (c) 2019 Dan Orban
+*/
+
 #include <iostream>
 #include <map>
 //#define _USE_MATH_DEFINES
