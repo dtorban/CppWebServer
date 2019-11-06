@@ -1,3 +1,7 @@
+/**
+Copyright (c) 2019 Dan Orban
+*/
+
 #ifndef WebSerVER_H_
 #define WebSerVER_H_
 
