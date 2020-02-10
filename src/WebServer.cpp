@@ -36,7 +36,7 @@ struct web_server_per_session_data_input {
 	WebServerSessionState* state;
 };
 
-static const struct lws_http_mount mount = {
+static struct lws_http_mount mount = {
 	/* .mount_next */		NULL,		/* linked-list "next" */
 	/* .mountpoint */		"/",		/* mountpoint URL */
 	/* .origin */			".", /* serve from dir */
@@ -123,7 +123,7 @@ struct lws_protocols web_server_protocols[] = {
 		}
 };
 
-WebServerBase::WebServerBase(int port) {
+WebServerBase::WebServerBase(int port, const std::string& webDir) : webDir(webDir) {
 	struct lws_context_creation_info info;
 
 	memset(&info, 0, sizeof info);
@@ -141,6 +141,8 @@ WebServerBase::WebServerBase(int port) {
 	info.ka_time = 0;
 	info.ka_probes = 0;
 	info.ka_interval = 0;
+	std::cout << "Starting web server for directory: " << webDir.c_str() << std::endl;
+	mount.origin = this->webDir.c_str();
 	info.mounts = &mount;
 	info.user = this;
 

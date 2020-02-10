@@ -11,7 +11,7 @@ Copyright (c) 2019 Dan Orban
 
 class WebServerBase {
 public:
-	WebServerBase(int port = 8081);
+	WebServerBase(int port = 8081, const std::string& webDir = ".");
 	~WebServerBase();
 
 	class Session {
@@ -35,12 +35,13 @@ protected:
 private:
 	lws_context *context;
 	std::vector<Session*> sessions;
+	std::string webDir;
 };
 
 template <typename T>
 class WebServer : public WebServerBase {
 public:
-	WebServer(int port = 8081) : WebServerBase(port) {}
+	WebServer(int port = 8081, const std::string& webDir = ".") : WebServerBase(port, webDir) {}
 protected:
 	Session* createSession() { return new T(); }
 };
@@ -48,7 +49,7 @@ protected:
 template <typename T, typename STATE>
 class WebServerWithState : public WebServerBase {
 public:
-	WebServerWithState(STATE state, int port = 8081) : WebServerBase(port), state(state) {}
+	WebServerWithState(STATE state, int port = 8081, const std::string& webDir = ".") : WebServerBase(port, webDir), state(state) {}
 protected:
 	Session* createSession() { return new T(state); }
 private:
