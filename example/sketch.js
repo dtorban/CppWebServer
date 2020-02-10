@@ -81,7 +81,7 @@ function setupSocket() {
 /// * * * * * P5 functions * * * * * ///
 
 function setup() {
-    socket = new WebSocket("ws://127.0.0.1:8081", "web_server");
+    socket = new WebSocket("ws://" + location.hostname+(location.port ? ':'+location.port: ''), "web_server");
     setupSocket();
 
     count  = 0;
