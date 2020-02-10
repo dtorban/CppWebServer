@@ -1,3 +1,7 @@
+/**
+Copyright (c) 2019 Dan Orban
+*/
+
 #include "WebServer.h"
 #include <iostream>
 #include <algorithm>
