@@ -27,7 +27,6 @@ WebServerBase::Session::~Session() {
 void WebServerBase::Session::sendMessage(const std::string& msg) {
 	WebServerSessionState& sessionState = *static_cast<WebServerSessionState*>(state);
 	sessionState.outMessages.push_back(msg);
-	lws_callback_on_writable(sessionState.wsi);
 }
 
 struct web_server_per_session_data_input {
@@ -177,9 +176,11 @@ void WebServerBase::service(int time) {
 		for (int i = 0; i < sessionState->inMessages.size(); i++) {
 			sessions[f]->receiveMessage(sessionState->inMessages[i]);
 		}
+			
+		sessions[f]->update();
 
-		for (int i = 0; i < sessionState->inMessages.size(); i++) {
-			sessions[f]->update();
+		if (sessionState->outMessages.size() > 0) {
+			lws_callback_on_writable(sessionState->wsi);
 		}
 
 		sessionState->inMessages.clear();
