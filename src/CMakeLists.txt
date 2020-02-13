@@ -36,3 +36,4 @@ useCPP11()
 
 addStandardLibrary()
 
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/  DESTINATION "include" FILES_MATCHING PATTERN "*.h")
