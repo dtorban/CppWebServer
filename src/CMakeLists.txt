@@ -29,11 +29,13 @@ add_external(WebSockets
 )
 set(ALL_LIBS ${ALL_LIBS} crypto ssl z)
 
-include(${external_dir}/CPP11/CPP11.cmake)
-useCPP11()
+#include(${external_dir}/CPP11/CPP11.cmake)
+#useCPP11()
 
 # --------------------- Executable -----------------------
 
 addStandardLibrary()
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/  DESTINATION "include" FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/../cmake/framework/external/picojson/src/  DESTINATION "include" FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/../cmake/framework/external/WebSockets/build/install/lib/  DESTINATION "lib" FILES_MATCHING PATTERN "*.a")
