@@ -15,3 +15,4 @@ include(${CMAKE_FRAMEWORK_DIR}/project/MainProject.cmake)
 
 add_subdirectory(src)
 add_subdirectory(example)
+add_subdirectory(adapters)

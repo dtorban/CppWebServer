@@ -32,6 +32,27 @@ set(ALL_LIBS ${ALL_LIBS} crypto ssl z)
 include(${external_dir}/CPP11/CPP11.cmake)
 useCPP11()
 
+find_package(Java COMPONENTS Development)
+find_package(JNI)
+if (${JNI_FOUND})
+	message(${Java_FOUND} ${Java_JAVAC_EXECUTABLE} abc ${Java_Development_FOUND} ${JNI_FOUND})
+	include_directories(
+		${JNI_INCLUDE_DIRS}
+	)
+
+	file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/include)
+	
+	execute_process(
+		COMMAND ${Java_JAVAC_EXECUTABLE} -h ${CMAKE_CURRENT_SOURCE_DIR}/src/include -d ${CMAKE_CURRENT_BINARY_DIR} --release 6 ${CMAKE_CURRENT_SOURCE_DIR}/src/CellReader.java ${CMAKE_CURRENT_SOURCE_DIR}/src/CellField.java ${CMAKE_CURRENT_SOURCE_DIR}/src/SimField.java ${CMAKE_CURRENT_SOURCE_DIR}/src/ModuleField.java ${CMAKE_CURRENT_SOURCE_DIR}/src/ClutchField.java
+	)
+	execute_process(
+		COMMAND ${Java_JAR_EXECUTABLE} --create --file ${CMAKE_BINARY_DIR}/lib/CellReader.jar -C ${CMAKE_CURRENT_BINARY_DIR} CellReader.class -C ${CMAKE_CURRENT_BINARY_DIR} CellField.class -C ${CMAKE_CURRENT_BINARY_DIR} SimField.class -C ${CMAKE_CURRENT_BINARY_DIR} ModuleField.class -C ${CMAKE_CURRENT_BINARY_DIR} ClutchField.class
+		#java -cp ../../build/lib/*.jar -Djava.library.path=../../build/lib/ CellReader
+	)
+endif()
+
+
+
 # --------------------- Executable -----------------------
 
 addStandardLibrary()
