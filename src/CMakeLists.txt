@@ -29,8 +29,8 @@ add_external(WebSockets
 )
 set(ALL_LIBS ${ALL_LIBS} crypto ssl z)
 
-#include(${external_dir}/CPP11/CPP11.cmake)
-#useCPP11()
+include(${external_dir}/CPP11/CPP11.cmake)
+useCPP11()
 
 # --------------------- Executable -----------------------
 
