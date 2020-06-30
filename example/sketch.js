@@ -1,4 +1,4 @@
-var socket = new WebSocket("ws://127.0.0.1:8081", "web_server");
+var socket = new WebSocket("ws://" + location.hostname+(location.port ? ':'+location.port: ''), "web_server");
 
 var count = 0;
 var size = 80;
