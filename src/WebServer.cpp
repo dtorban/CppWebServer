@@ -35,6 +35,13 @@ struct web_server_per_session_data_input {
 	WebServerSessionState* state;
 };
 
+static const struct lws_protocol_vhost_options pvo_mime = {
+	NULL,				/* "next" pvo linked-list */
+	NULL,				/* "child" pvo linked-list */
+	".glb",				/* file suffix to match */
+	"model/gltf-binary"		/* mimetype to use */
+};
+
 static struct lws_http_mount mount = {
 	/* .mount_next */		NULL,		/* linked-list "next" */
 	/* .mountpoint */		"/",		/* mountpoint URL */
@@ -42,7 +49,7 @@ static struct lws_http_mount mount = {
 	/* .def */			"index.html",	/* default filename */
 	/* .protocol */			NULL,
 	/* .cgienv */			NULL,
-	/* .extra_mimetypes */		NULL,
+	/* .extra_mimetypes */		&pvo_mime,
 	/* .interpret */		NULL,
 	/* .cgi_timeout */		0,
 	/* .cache_max_age */		0,
