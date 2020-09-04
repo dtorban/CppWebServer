@@ -49,6 +49,13 @@ static const struct lws_protocol_vhost_options pvo_mime2 = {
 	"model/obj"		/* mimetype to use */
 };
 
+static const struct lws_protocol_vhost_options pvo_mime3 = {
+	&pvo_mime2,				/* "next" pvo linked-list */
+	NULL,				/* "child" pvo linked-list */
+	".mtl",				/* file suffix to match */
+	"model/mtl"		/* mimetype to use */
+};
+
 static struct lws_http_mount mount = {
 	/* .mount_next */		NULL,		/* linked-list "next" */
 	/* .mountpoint */		"/",		/* mountpoint URL */
@@ -56,7 +63,7 @@ static struct lws_http_mount mount = {
 	/* .def */			"index.html",	/* default filename */
 	/* .protocol */			NULL,
 	/* .cgienv */			NULL,
-	/* .extra_mimetypes */		&pvo_mime2,
+	/* .extra_mimetypes */		&pvo_mime3,
 	/* .interpret */		NULL,
 	/* .cgi_timeout */		0,
 	/* .cache_max_age */		0,
