@@ -27,6 +27,7 @@ WebServerBase::Session::~Session() {
 void WebServerBase::Session::sendMessage(const std::string& msg) {
 	WebServerSessionState& sessionState = *static_cast<WebServerSessionState*>(state);
 	sessionState.outMessages.push_back(msg);
+	lws_callback_on_writable(sessionState.wsi);
 }
 
 struct web_server_per_session_data_input {
@@ -106,9 +107,11 @@ int callback_web_server(
 		break;
 	}
 	case LWS_CALLBACK_SERVER_WRITEABLE: {
-		for (int f = 0; f < pss->state->outMessages.size(); f++) {
-			//std::string dataToSend = "this is a test to see if it works."; 
-			std::string val = pss->state->outMessages[f];
+		//std::cout << "Messages: " << pss->state->outMessages.size() << std::endl;
+		if (pss->state->outMessages.size() == 0) {
+			return 0;
+		}
+			std::string val = pss->state->outMessages[0];
 
 			int newLen = val.length();
 			unsigned char *buf = (unsigned char*) malloc(LWS_SEND_BUFFER_PRE_PADDING + newLen +
@@ -116,9 +119,11 @@ int callback_web_server(
 			memcpy(&buf[LWS_SEND_BUFFER_PRE_PADDING], val.c_str(), newLen);
 			lws_write(wsi, &buf[LWS_SEND_BUFFER_PRE_PADDING], newLen, LWS_WRITE_TEXT);
 			free(buf);
-		}
+		pss->state->outMessages.erase(pss->state->outMessages.begin());
 
-		pss->state->outMessages.clear();
+		if (pss->state->outMessages.size() > 0) {
+			lws_callback_on_writable(wsi);
+		}
 
 		break;
 	}
@@ -199,10 +204,6 @@ void WebServerBase::service(int time) {
 		}
 			
 		sessions[f]->update();
-
-		if (sessionState->outMessages.size() > 0) {
-			lws_callback_on_writable(sessionState->wsi);
-		}
 
 		sessionState->inMessages.clear();
 	}
