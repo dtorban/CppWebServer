@@ -19,7 +19,7 @@ public:
 	public:
 		virtual ~Session();
 		virtual void receiveMessage(const std::string& msg) {}
-		void sendMessage(const std::string& msg);
+		virtual void sendMessage(const std::string& msg);
 		virtual void update() {}
 	private:
 		void* state;
@@ -63,7 +63,7 @@ class JSONSession : public WebServerBase::Session {
 public:
 	virtual void receiveJSON(picojson::value& val) {}
 	
-	void sendJSON(picojson::value& val) {
+	virtual void sendJSON(picojson::value& val) {
 		sendMessage(val.serialize());
 	}
 
