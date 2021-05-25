@@ -21,6 +21,7 @@ public:
 		virtual void receiveMessage(const std::string& msg) {}
 		virtual void sendMessage(const std::string& msg);
 		virtual void update() {}
+		virtual void onWrite();
 	private:
 		void* state;
 	};
