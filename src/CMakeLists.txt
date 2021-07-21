@@ -24,6 +24,7 @@ set(DEP_INCLUDES ${DEP_INCLUDES} ${external_dir}/picojson/src)
 set(libwebsocketsArgs -DUSE_MSVC_RUNTIME_LIBRARY_DLL=ON -DLIBWEBSOCKETS_BUILD_DOCS=OFF -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DLWS_WITH_SHARED=OFF -DLWS_STATIC_PIC=ON)
 add_external(WebSockets
 	GIT_REPOSITORY https://github.com/warmcat/libwebsockets.git
+	GIT_TAG main
 	CMAKE_ARGS libwebsocketsArgs 
 	LIB_NAME websockets
 )
