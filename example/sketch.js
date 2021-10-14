@@ -7,7 +7,7 @@ var color = {r: 0, g: 0, b: 0, a: 0}
 try {
 	socket.onmessage =function got_packet(msg) {
 		count++;
-		//console.log(count, JSON.parse(msg.data));
+		console.log(count, JSON.parse(msg.data));
 		var data = JSON.parse(msg.data);
 		if (data.command == "updateElipse") {	
 			size = data.size;
@@ -26,12 +26,15 @@ var connected = false;
 socket.onopen = function() {
     socket.send(JSON.stringify({command: "test"}));
     connected = true;
+
+
   }
 
 // P5 functions
 function setup() {
 	//createCanvas(640, 480);
 	createCanvas(windowWidth,windowHeight);
+	
 }
 
 function draw() {
@@ -41,5 +44,25 @@ function draw() {
 }
 
 function mouseMoved() {
-  socket.send(JSON.stringify({command: "mouseMoved", mouseX: mouseX, mouseY: mouseY}));
+
+  //socket.send(JSON.stringify({command: "mouseMoved", mouseX: mouseX, mouseY: mouseY}));
+}
+
+function mouseClicked() {
+	var output = ''
+	for (var i = 0; i < 5000; i++) {
+		output += i + ', ';
+	}
+
+	//socket.send(JSON.stringify({command: "sdf", mouseX: output}));
+
+	$.ajax({
+		type: "POST",
+		url: "/test",
+		data: output,
+		success: function(res) { console.log(res); },
+		//error: function(res) { console.log(res); },
+		dataType: "json"
+	  });
+
 }

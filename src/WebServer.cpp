@@ -111,10 +111,8 @@ int callback_web_server(
 
 	switch (reason) {
 	case LWS_CALLBACK_ESTABLISHED: {
-		//pss->impl = new WebServerSessionImpl(wsi);
 		pss->wsi = wsi;
 		WebServer->createSession(pss);
-		std::cout << "Connection established" << std::endl;
 		break;
 	}
 	case LWS_CALLBACK_CLOSED: {
@@ -124,41 +122,84 @@ int callback_web_server(
 	}
 	case LWS_CALLBACK_RECEIVE: {
 		std::string data((char *)in, len);
-		//pss->impl->receiveMessage(data);
 		pss->state->inMessages.push_back(data);
 		break;
 	}
 	case LWS_CALLBACK_SERVER_WRITEABLE: {
 		pss->impl->onWrite();
-		//std::cout << "Messages: " << pss->state->outMessages.size() << std::endl;
-		/*if (pss->state->outMessages.size() == 0) {
-			return 0;
-		}
-			std::string val = pss->state->outMessages[0];
 
-			int newLen = val.length();
-			unsigned char *buf = (unsigned char*) malloc(LWS_SEND_BUFFER_PRE_PADDING + newLen +
-					LWS_SEND_BUFFER_POST_PADDING);
-			memcpy(&buf[LWS_SEND_BUFFER_PRE_PADDING], val.c_str(), newLen);
-			lws_write(wsi, &buf[LWS_SEND_BUFFER_PRE_PADDING], newLen, LWS_WRITE_TEXT);
-			free(buf);
-		pss->state->outMessages.erase(pss->state->outMessages.begin());
-
-		if (pss->state->outMessages.size() > 0) {
-			lws_callback_on_writable(wsi);
-		}*/
 
 		break;
 	}
 	}
+
 	return 0;
+}
+
+int callback_post(struct lws *wsi, enum lws_callback_reasons reason,
+		   void *user, void *in, size_t len)
+{
+	/*struct per_session_data__post_demo *pss =
+			(struct per_session_data__post_demo *)user;
+	unsigned char *p, *start, *end;
+	int n;*/
+	WebServerBase* webServer = static_cast<WebServerBase*>(lws_context_user(lws_get_context(wsi)));
+
+	switch (reason) {
+	case LWS_CALLBACK_HTTP:
+		std::cout << "LWS_CALLBACK_HTTP" << std::endl;
+		std::cout << (const char*)in << std::endl;
+		if (!strcmp((const char *)in, "/test")) {
+			/* assertively allow it to exist in the URL space */
+			return 0;
+		}
+		break;
+
+	case LWS_CALLBACK_HTTP_BODY: {
+		std::cout << "LWS_CALLBACK_HTTP_BODY" << std::endl;
+
+		std::string out;
+		for (int i = 0; i < 20; i++) {
+			out += ((const char*)in)[i];
+		}
+		std::cout << out << std::endl;
+		std::cout << len << std::endl;
+		//return -1;
+		break;
+	}
+
+	case LWS_CALLBACK_HTTP_BODY_COMPLETION:
+		std::cout << "LWS_CALLBACK_HTTP_BODY_COMPLETION" << std::endl;
+		lws_callback_on_writable(wsi);
+		//return -1;
+		break;
+
+	case LWS_CALLBACK_HTTP_WRITEABLE: {
+		std::cout << "LWS_CALLBACK_HTTP_WRITEABLE" << std::endl;
+		std::cout << webServer->sessions.size() << std::endl;
+		webServer->sessions[0]->sendMessage("\"test this\"");
+		return -1;
+		break;
+
+	}
+
+	case LWS_CALLBACK_HTTP_DROP_PROTOCOL:
+		std::cout << "LWS_CALLBACK_HTTP_DROP_PROTOCOL" << std::endl;
+		break;
+
+	default:
+		break;
+	}
+
+	return lws_callback_http_dummy(wsi, reason, user, in, len);
+
 }
 
 struct lws_protocols web_server_protocols[] = {
 		/* first protocol must always be HTTP handler */
 		{
 				"http-only",   // name
-				lws_callback_http_dummy, // callback
+				callback_post, //lws_callback_http_dummy, // callback
 				0              // per_session_data_size
 		},
 		{
@@ -166,6 +207,13 @@ struct lws_protocols web_server_protocols[] = {
 				callback_web_server, // callback
 				sizeof (struct web_server_per_session_data_input)              // per_session_data_size
 		},
+		/*{
+				"protocol-post",   // name
+				callback_post, // callback
+				sizeof (struct web_server_per_session_data_input),              // per_session_data_size
+				1024,
+				0, NULL, 0
+		},*/
 		{
 				NULL, NULL, 0   /* End of list */
 		}

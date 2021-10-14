@@ -29,11 +29,12 @@ public:
 	void service(int time = 10);
 
 	virtual void createSession(void* info);
+	
 
 protected:
 	virtual Session* createSession() { return new Session(); }
 
-private:
+public:
 	lws_context *context;
 	std::vector<Session*> sessions;
 	std::string webDir;
