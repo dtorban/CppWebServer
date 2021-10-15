@@ -11,7 +11,14 @@ struct WebServerSessionState {
 	std::vector<std::string> inMessages;
 	std::vector<std::string> outMessages;
 	std::vector<WebServerBase::Session*>* sessions;
+	std::map<int, WebServerBase::Session*>* sessionMap;
 };
+
+WebServerBase::Session::Session() {
+	static int currentId = 0;
+	id = currentId;
+	currentId++;
+}
 
 WebServerBase::Session::~Session() {
 	WebServerSessionState* sessionState = static_cast<WebServerSessionState*>(state);
@@ -20,6 +27,9 @@ WebServerBase::Session::~Session() {
 	if (it != sessions.end()) {
 		sessions.erase(it);
 	}
+
+	std::map<int, Session*>& sessionMap = *sessionState->sessionMap;
+	sessionMap.erase(sessionMap.find(id));
 
 	delete sessionState;
 }
@@ -56,6 +66,11 @@ struct web_server_per_session_data_input {
 	struct lws *wsi;
 	WebServerBase::Session* impl;
 	WebServerSessionState* state;
+};
+
+struct post_per_session_data_input {
+	int id;
+	std::string data;
 };
 
 static const struct lws_protocol_vhost_options pvo_mime = {
@@ -139,21 +154,30 @@ int callback_web_server(
 int callback_post(struct lws *wsi, enum lws_callback_reasons reason,
 		   void *user, void *in, size_t len)
 {
-	/*struct per_session_data__post_demo *pss =
-			(struct per_session_data__post_demo *)user;
-	unsigned char *p, *start, *end;
-	int n;*/
+	struct post_per_session_data_input *pss =
+			(struct post_per_session_data_input *)user;
+
+	
+
 	WebServerBase* webServer = static_cast<WebServerBase*>(lws_context_user(lws_get_context(wsi)));
 
 	switch (reason) {
-	case LWS_CALLBACK_HTTP:
+	case LWS_CALLBACK_HTTP: {
 		std::cout << "LWS_CALLBACK_HTTP" << std::endl;
 		std::cout << (const char*)in << std::endl;
-		if (!strcmp((const char *)in, "/test")) {
-			/* assertively allow it to exist in the URL space */
+		std::string target((const char *)in);
+		std::cout << target << std::endl;
+		if (target.length() > 6 && target.substr(0,6) == "/post/") {
+			pss->id = std::atoi(target.substr(6).c_str());
+			std::cout << pss->id << std::endl;
 			return 0;
 		}
+		//if (!strcmp((const char *)in, "/post")) {
+			/* assertively allow it to exist in the URL space */
+		//	return 0;
+		//}
 		break;
+	}
 
 	case LWS_CALLBACK_HTTP_BODY: {
 		std::cout << "LWS_CALLBACK_HTTP_BODY" << std::endl;
@@ -164,21 +188,27 @@ int callback_post(struct lws *wsi, enum lws_callback_reasons reason,
 		}
 		std::cout << out << std::endl;
 		std::cout << len << std::endl;
+
+		pss->data += std::string((const char*)in, len);
 		//return -1;
 		break;
 	}
 
 	case LWS_CALLBACK_HTTP_BODY_COMPLETION:
 		std::cout << "LWS_CALLBACK_HTTP_BODY_COMPLETION" << std::endl;
-		lws_callback_on_writable(wsi);
-		//return -1;
+		if (webServer->sessionMap.find(pss->id) != webServer->sessionMap.end()) {
+			webServer->sessionMap[pss->id]->receiveMessage(pss->data);
+		}
+		//lws_callback_on_writable(wsi);
+		return -1;
 		break;
 
 	case LWS_CALLBACK_HTTP_WRITEABLE: {
 		std::cout << "LWS_CALLBACK_HTTP_WRITEABLE" << std::endl;
-		std::cout << webServer->sessions.size() << std::endl;
-		webServer->sessions[0]->sendMessage("\"test this\"");
-		return -1;
+		//std::cout << webServer->sessions.size() << std::endl;
+		//std::cout << pss->data << std::endl;
+		//webServer->sessionMap[pss->id]->sendMessage("\"" + pss->data + "\"");
+		//return -1;
 		break;
 
 	}
@@ -200,7 +230,7 @@ struct lws_protocols web_server_protocols[] = {
 		{
 				"http-only",   // name
 				callback_post, //lws_callback_http_dummy, // callback
-				0              // per_session_data_size
+				sizeof(struct post_per_session_data_input)              // per_session_data_size
 		},
 		{
 				"web_server",   // name
@@ -264,6 +294,10 @@ void WebServerBase::createSession(void* info) {
 	pss->state->wsi = pss->wsi;
 	session->state = pss->state;
 	pss->state->sessions = &sessions;
+	pss->state->sessionMap = &sessionMap;
+	sessionMap[session->getId()] = session;
+	std::string id = std::to_string(session->getId());
+	session->sendMessage(id);
 }
 
 void WebServerBase::service(int time) {

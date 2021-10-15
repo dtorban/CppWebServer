@@ -7,6 +7,7 @@ Copyright (c) 2019 Dan Orban
 
 #include <string>
 #include <vector>
+#include <map>
 #include <libwebsockets.h>
 
 class WebServerBase {
@@ -17,13 +18,16 @@ public:
 	class Session {
 	friend class WebServerBase;
 	public:
+		Session();
 		virtual ~Session();
+		virtual int getId() const { return id; }
 		virtual void receiveMessage(const std::string& msg) {}
 		virtual void sendMessage(const std::string& msg);
 		virtual void update() {}
 		virtual void onWrite();
 	private:
 		void* state;
+		int id;
 	};
 
 	void service(int time = 10);
@@ -37,6 +41,7 @@ protected:
 public:
 	lws_context *context;
 	std::vector<Session*> sessions;
+	std::map<int, Session*> sessionMap;
 	std::string webDir;
 };
 

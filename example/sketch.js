@@ -3,9 +3,15 @@ var socket = new WebSocket("ws://" + location.hostname+(location.port ? ':'+loca
 var count = 0;
 var size = 80;
 var color = {r: 0, g: 0, b: 0, a: 0}
+var id;
+var connected = false;
 
 try {
 	socket.onmessage =function got_packet(msg) {
+		if (!connected) {
+			id = +msg.data;
+			connected = true;
+		}
 		count++;
 		console.log(count, JSON.parse(msg.data));
 		var data = JSON.parse(msg.data);
@@ -21,11 +27,10 @@ try {
 	alert('<p>Error' + exception);  
 }
 
-var connected = false;
 
 socket.onopen = function() {
     socket.send(JSON.stringify({command: "test"}));
-    connected = true;
+   // connected = true;
 
 
   }
@@ -58,8 +63,9 @@ function mouseClicked() {
 
 	$.ajax({
 		type: "POST",
-		url: "/test",
-		data: output,
+		url: "/post/"+id,
+		//data: JSON.stringify({command: "mouseClicked", output: output}),
+		data: JSON.stringify({command: "mouseMoved", mouseX: mouseX, mouseY: mouseY, output: output}),
 		success: function(res) { console.log(res); },
 		//error: function(res) { console.log(res); },
 		dataType: "json"
