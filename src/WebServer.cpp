@@ -163,13 +163,13 @@ int callback_post(struct lws *wsi, enum lws_callback_reasons reason,
 
 	switch (reason) {
 	case LWS_CALLBACK_HTTP: {
-		std::cout << "LWS_CALLBACK_HTTP" << std::endl;
-		std::cout << (const char*)in << std::endl;
+		//std::cout << "LWS_CALLBACK_HTTP" << std::endl;
+		//std::cout << (const char*)in << std::endl;
 		std::string target((const char *)in);
-		std::cout << target << std::endl;
+		//std::cout << target << std::endl;
 		if (target.length() > 6 && target.substr(0,6) == "/post/") {
 			pss->id = std::atoi(target.substr(6).c_str());
-			std::cout << pss->id << std::endl;
+			//std::cout << pss->id << std::endl;
 			return 0;
 		}
 		//if (!strcmp((const char *)in, "/post")) {
@@ -180,14 +180,14 @@ int callback_post(struct lws *wsi, enum lws_callback_reasons reason,
 	}
 
 	case LWS_CALLBACK_HTTP_BODY: {
-		std::cout << "LWS_CALLBACK_HTTP_BODY" << std::endl;
+		//std::cout << "LWS_CALLBACK_HTTP_BODY" << std::endl;
 
-		std::string out;
+		/*std::string out;
 		for (int i = 0; i < 20; i++) {
 			out += ((const char*)in)[i];
-		}
-		std::cout << out << std::endl;
-		std::cout << len << std::endl;
+		}*/
+		//std::cout << out << std::endl;
+		//std::cout << len << std::endl;
 
 		pss->data += std::string((const char*)in, len);
 		//return -1;
@@ -195,7 +195,7 @@ int callback_post(struct lws *wsi, enum lws_callback_reasons reason,
 	}
 
 	case LWS_CALLBACK_HTTP_BODY_COMPLETION:
-		std::cout << "LWS_CALLBACK_HTTP_BODY_COMPLETION" << std::endl;
+		//std::cout << "LWS_CALLBACK_HTTP_BODY_COMPLETION" << std::endl;
 		if (webServer->sessionMap.find(pss->id) != webServer->sessionMap.end()) {
 			webServer->sessionMap[pss->id]->receiveMessage(pss->data);
 		}
@@ -204,7 +204,7 @@ int callback_post(struct lws *wsi, enum lws_callback_reasons reason,
 		break;
 
 	case LWS_CALLBACK_HTTP_WRITEABLE: {
-		std::cout << "LWS_CALLBACK_HTTP_WRITEABLE" << std::endl;
+		//std::cout << "LWS_CALLBACK_HTTP_WRITEABLE" << std::endl;
 		//std::cout << webServer->sessions.size() << std::endl;
 		//std::cout << pss->data << std::endl;
 		//webServer->sessionMap[pss->id]->sendMessage("\"" + pss->data + "\"");
@@ -214,7 +214,7 @@ int callback_post(struct lws *wsi, enum lws_callback_reasons reason,
 	}
 
 	case LWS_CALLBACK_HTTP_DROP_PROTOCOL:
-		std::cout << "LWS_CALLBACK_HTTP_DROP_PROTOCOL" << std::endl;
+		//std::cout << "LWS_CALLBACK_HTTP_DROP_PROTOCOL" << std::endl;
 		break;
 
 	default:
