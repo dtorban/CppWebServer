@@ -284,6 +284,7 @@ WebServerBase::WebServerBase(int port, const std::string& webDir) : webDir(webDi
 }
 
 WebServerBase::~WebServerBase() {
+	lws_context_destroy(context);
 }
 
 void WebServerBase::createSession(void* info) {

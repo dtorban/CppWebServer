@@ -13,7 +13,7 @@ Copyright (c) 2019 Dan Orban
 class WebServerBase {
 public:
 	WebServerBase(int port = 8081, const std::string& webDir = ".");
-	~WebServerBase();
+	virtual ~WebServerBase();
 
 	class Session {
 	friend class WebServerBase;
